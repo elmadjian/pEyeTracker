@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>CalibScreen.qml</file>
+        <file>Dropdown.qml</file>
+        <file>CalibControl.qml</file>
+        <file>DropdownHMD.qml</file>
+        <file>CalibHMD.qml</file>
+        <file>SceneCamera.qml</file>
+        <file>LeftEyeCamera.qml</file>
+        <file>RightEyeCamera.qml</file>
+    </qresource>
+</RCC>
