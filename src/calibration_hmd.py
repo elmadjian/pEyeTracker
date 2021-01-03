@@ -11,6 +11,14 @@ from threading import Thread
 
 
 class HMDCalibrator(QObject):
+    '''
+    This Calibrator should be used with an external calibration
+    routine running on an HMD (i.e., either VR or AR headset).
+    
+    Note: we will provide at some point a Unity prefab to be
+    used inside your XR project so that you can perform a 
+    calibration using pEyeTracker with your headset.
+    '''
 
     move_on = Signal()
     conn_status = Signal(bool)

@@ -73,6 +73,7 @@ Some of the things I think should be implemented at some point in the future:
 * [ ] stream gaze data through some network protocol
 * [ ] option to change calibration parameters on UI
 * [ ] option to change gaze estimation function and its paramenters on UI
+* [ ] Unity prefabs to perform calibration with AR/VR devices
 
 
 
