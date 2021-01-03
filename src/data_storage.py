@@ -44,8 +44,8 @@ class Storer():
     def collect_depth_data(self, idx, dist, mode3D, minfreq):
         le = self.leye.get_processed_data()
         re = self.reye.get_processed_data()
-        if self.__check_data_n_timestamp(None, le, re, mode3D, 1/minfreq):
-            self.__add_depth_data(dist, idx)
+        if self._check_data_n_timestamp(None, le, re, mode3D, 1/minfreq):
+            self._add_depth_data(dist, idx)
 
     def collect_data(self, idx, mode3D, minfreq):
         sc, sc_img = None, None
@@ -56,11 +56,11 @@ class Storer():
         re = self.reye.get_processed_data()
         le_img = self.leye.get_np_image()
         re_img = self.reye.get_np_image()
-        if self.__check_data_n_timestamp(sc, le, re, mode3D, 1/minfreq):
-            self.__add_data(sc, le, re, idx)
-            self.__add_imgs(sc_img, le_img, re_img, idx)
+        if self._check_data_n_timestamp(sc, le, re, mode3D, 1/minfreq):
+            self._add_data(sc, le, re, idx)
+            self._add_imgs(sc_img, le_img, re_img, idx)
     
-    def __add_data(self, sc, le, re, idx):
+    def _add_data(self, sc, le, re, idx):
         scd = np.array(self.target_list[idx])
         if sc is not None and self.scene.is_cam_active():
             scd = np.array([sc[0], sc[1]], dtype='float32')
@@ -72,7 +72,7 @@ class Storer():
             red = np.array([re[0],re[1],re[2]])#,le[3],le[4],le[5]])
             self.r_centers[idx] = np.vstack((self.r_centers[idx], red))
 
-    def __add_imgs(self, sc, le, re, idx):
+    def _add_imgs(self, sc, le, re, idx):
         if sc is not None and self.scene.is_cam_active():
             self.t_imgs[idx].append(sc)
         if self.leye.is_cam_active():
@@ -80,14 +80,14 @@ class Storer():
         if self.reye.is_cam_active():
             self.r_imgs[idx].append(re)
 
-    def __add_depth_data(self, dist, idx):
+    def _add_depth_data(self, dist, idx):
         scd = np.array(self.target_list[idx][2])
         self.depth_t[idx] = np.vstack((self.depth_t[idx], scd))
         if self.leye.is_cam_active() and self.reye.is_cam_active():
             d = np.array([dist])
             self.dist[idx] = np.vstack((self.dist[idx], d))
    
-    def __check_data_n_timestamp(self, sc, le, re, mode3D, thresh):
+    def _check_data_n_timestamp(self, sc, le, re, mode3D, thresh):
         if le is None and self.leye.is_cam_active():
             return False
         if re is None and self.reye.is_cam_active():
@@ -111,29 +111,29 @@ class Storer():
                     return True
         return False
 
-    def __dict_to_list(self, dic):
+    def _dict_to_list(self, dic):
         new_list = np.empty((0,dic[0].shape[1]), dtype='float32')
         for t in dic.keys():
             new_list = np.vstack((new_list, dic[t]))
         return new_list
 
     def get_targets_list(self):
-        return self.__dict_to_list(self.targets)
+        return self._dict_to_list(self.targets)
 
     def get_depth_t_list(self):
-        return self.__dict_to_list(self.depth_t)
+        return self._dict_to_list(self.depth_t)
 
     def get_dist_list(self):
-        return self.__dict_to_list(self.dist)
+        return self._dict_to_list(self.dist)
 
     def get_l_centers_list(self, mode_3D):
-        data = self.__dict_to_list(self.l_centers)
+        data = self._dict_to_list(self.l_centers)
         if not mode_3D:
             data = np.array(data[:,:2])
         return data
 
     def get_r_centers_list(self, mode_3D):
-        data = self.__dict_to_list(self.r_centers)
+        data = self._dict_to_list(self.r_centers)
         if not mode_3D:
             data = np.array(data[:,:2])
         return data
@@ -165,7 +165,7 @@ class Storer():
     
     def store_calibration(self):
         print(">>> Storing calibration data, please wait...")
-        path = self.__check_or_create_path('calibration')
+        path = self._check_or_create_path('calibration')
         for k in self.targets.keys():
             perc = int(k/len(self.targets.keys()) * 100)
             print(">>> {}%...".format(perc), end="\r", flush=True)
@@ -184,7 +184,7 @@ class Storer():
     def store_session(self):
         if len(self.l_sess) > 0:        
             print(">>> Saving session...")
-            path = self.__check_or_create_path('session')
+            path = self._check_or_create_path('session')
             np.savez_compressed(path+'_left_gaze', self.l_sess)
             np.savez_compressed(path+'_right_gaze', self.r_sess)
             np.savez_compressed(path+'_left_eye', self.l_raw)
@@ -192,7 +192,7 @@ class Storer():
             print('>>> Session saved.')
 
 
-    def __check_or_create_path(self, spec):
+    def _check_or_create_path(self, spec):
         '''
         spec -> either 'calibration' or 'session'
         '''

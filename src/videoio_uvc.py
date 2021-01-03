@@ -103,11 +103,11 @@ class VideoIO_UVC(QObject):
     def set_camera_source(self, cam_id, cam_name):
         source = int(cam_name.split(':')[0])
         if cam_id.startswith("Scene"):
-            self.__change_cameras(self.scene, self.leye, self.reye, source)
+            self._change_cameras(self.scene, self.leye, self.reye, source)
         elif cam_id.startswith("Left"):
-            self.__change_cameras(self.leye, self.scene, self.reye, source)
+            self._change_cameras(self.leye, self.scene, self.reye, source)
         else:
-            self.__change_cameras(self.reye, self.scene, self.leye, source)
+            self._change_cameras(self.reye, self.scene, self.leye, source)
 
     @Slot()
     def save_session_config(self):
@@ -115,7 +115,7 @@ class VideoIO_UVC(QObject):
         
         
 
-    def __change_cameras(self, cam1, cam2, cam3, source):
+    def _change_cameras(self, cam1, cam2, cam3, source):
         '''
         cam1: camera to be changed
         cam2 and cam3: non-selected cameras that might also have to change

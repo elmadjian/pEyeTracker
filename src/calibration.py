@@ -31,7 +31,7 @@ class Calibrator(QObject):
         frequency: value of the tracker's frequency in Hz
         '''
         QObject.__init__(self)
-        self.target_list = self.__generate_target_list(v_targets, h_targets)
+        self.target_list = self._generate_target_list(v_targets, h_targets)
         self.storer = ds.Storer(self.target_list)
         self.l_regressor, self.l_regressor_3D = None, None
         self.r_regressor, self.r_regressor_3D = None, None
@@ -52,7 +52,7 @@ class Calibrator(QObject):
         self.storer.set_sources(scene, leye, reye)
 
 
-    def __generate_target_list(self, v, h):
+    def _generate_target_list(self, v, h):
         target_list = []
         for y in np.linspace(0.09, 0.91, v):
             for x in np.linspace(0.055, 0.935, h):
@@ -63,7 +63,7 @@ class Calibrator(QObject):
         return target_list
 
 
-    def __get_target_data(self, maxfreq, minfreq):
+    def _get_target_data(self, maxfreq, minfreq):
         '''
         scene: sceneCamera object
         le: left eyeCamera object
@@ -111,7 +111,7 @@ class Calibrator(QObject):
 
     @Slot(int, int)
     def collect_data(self, minfq, maxfq):
-        self.collector = Thread(target=self.__get_target_data, args=(minfq,maxfq,))
+        self.collector = Thread(target=self._get_target_data, args=(minfq,maxfq,))
         self.collector.start()
 
     @Slot()
@@ -120,27 +120,27 @@ class Calibrator(QObject):
         Finds a gaze estimation function to be used for 
         future predictions. Based on Gaussian Processes regression.
         '''
-        clf_l = self.__get_clf()
-        clf_r = self.__get_clf()     
+        clf_l = self._get_clf()
+        clf_r = self._get_clf()     
         st, sl, sr = self.storer.get_random_test_samples(
             self.samples, len(self.target_list))                             
         targets = self.storer.get_targets_list()
         if self.leye.is_cam_active():                                       
             l_centers = self.storer.get_l_centers_list(self.mode_3D)
             clf_l.fit(l_centers, targets)
-            self.__set_regressor('left', clf_l)
+            self._set_regressor('left', clf_l)
         if self.reye.is_cam_active():
             r_centers = self.storer.get_r_centers_list(self.mode_3D)
             clf_r.fit(r_centers, targets)
-            self.__set_regressor('right', clf_r)
+            self._set_regressor('right', clf_r)
         print("Gaze estimation finished")
-        self.__test_calibration(st, sl, sr)
+        self._test_calibration(st, sl, sr)
         print('Estimation assessment ready')
         self.enable_estimation.emit()
         if self.storage:
             self.storer.store_calibration()
         
-    def __set_regressor(self, eye, clf):
+    def _set_regressor(self, eye, clf):
         if eye == 'left':
             if self.mode_3D:
                 self.l_regressor_3D = clf
@@ -156,13 +156,13 @@ class Calibrator(QObject):
     def predict(self):
         data, pred = [], []
         if self.mode_3D:
-            data, pred = self.__predict3d()
+            data, pred = self._predict3d()
             if self.storage:
                 l_gz, r_gz   = pred[:2], pred[2:]
                 l_raw, r_raw = data[:3], data[3:]
                 self.storer.append_session_data(l_gz, r_gz, l_raw, r_raw)
         else:
-            data, pred = self.__predict2d()
+            data, pred = self._predict2d()
             if self.storage:
                 l_gz, r_gz   = pred[:2], pred[2:]
                 l_raw, r_raw = data[:2], data[2:]
@@ -170,11 +170,11 @@ class Calibrator(QObject):
         return pred
 
 
-    def __test_calibration(self, st, sl, sr):
+    def _test_calibration(self, st, sl, sr):
         le_error, re_error = [],[]
         tgt_mean, le_mean, re_mean = [],[],[]
         for t in st.keys():
-            le_pred, re_pred = self.__predict_batch(sl[t], sr[t])
+            le_pred, re_pred = self._predict_batch(sl[t], sr[t])
             tmean = np.mean(st[t], axis=0)
             lmean = np.mean(le_pred, axis=0)
             rmean = np.mean(re_pred, axis=0)
@@ -207,7 +207,7 @@ class Calibrator(QObject):
         self.draw_estimation.emit(tgt, le, re, le_err, re_err)
 
 
-    def __predict_batch(self, le, re):
+    def _predict_batch(self, le, re):
         le_pred, re_pred = [0], [0]
         if (self.l_regressor or self.l_regressor_3D) and le is not None:
             if self.mode_3D:
@@ -226,7 +226,7 @@ class Calibrator(QObject):
         return le_pred, re_pred
 
 
-    def __predict2d(self):
+    def _predict2d(self):
         data = [-1,-1,-1,-1]
         pred = [-1,-1,-1,-1]
         if self.l_regressor:
@@ -246,7 +246,7 @@ class Calibrator(QObject):
         return data, pred
 
 
-    def __predict3d(self):
+    def _predict3d(self):
         d = [-1 for i in range(6)]
         pred = [-1,-1,-1,-1]
         if self.l_regressor_3D:
@@ -279,7 +279,7 @@ class Calibrator(QObject):
         self.storer.store_session()
 
 
-    def __get_clf(self):
+    def _get_clf(self):
         kernel = 1.5*kernels.RBF(length_scale=1.0, length_scale_bounds=(0,1.0))
         clf = GaussianProcessRegressor(alpha=1e-5,
                                        optimizer=None,

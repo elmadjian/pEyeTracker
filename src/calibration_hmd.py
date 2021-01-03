@@ -29,7 +29,7 @@ class HMDCalibrator(QObject):
         frequency: value of the tracker's frequency in Hz
         '''
         QObject.__init__(self)
-        self.target_list = self.__generate_target_list(v_targets, h_targets)
+        self.target_list = self._generate_target_list(v_targets, h_targets)
         self.storer = ds.Storer(self.target_list, True)
         self.l_regressor = None
         self.r_regressor = None
@@ -67,7 +67,7 @@ class HMDCalibrator(QObject):
         return ip, int(port)
     
 
-    def __generate_target_list(self, v, h):
+    def _generate_target_list(self, v, h):
         target_list = []
         for y in np.linspace(-1,1, v):
             for x in np.linspace(-1,1, h):
@@ -77,14 +77,14 @@ class HMDCalibrator(QObject):
         rnd.shuffle(target_list)
         return target_list
 
-    def __generate_depth_list(self, nz):
+    def _generate_depth_list(self, nz):
         target_list = []
         for p in np.logspace(0.36,1, nz)/10.0:
             target_list.append(np.array([0,0,p], dtype=np.float))
         return target_list
 
 
-    def __get_target_data(self, maxfreq, minfreq):
+    def _get_target_data(self, maxfreq, minfreq):
         '''
         scene: sceneCamera object
         le: left eyeCamera object
@@ -105,13 +105,13 @@ class HMDCalibrator(QObject):
             len(self.storer.r_centers[idx])))
 
 
-    def __get_depth_data(self, maxfreq, minfreq):
+    def _get_depth_data(self, maxfreq, minfreq):
         idx = self.current_target
         t = time.time()
         tgt = self.storer.depth_t
         while (len(tgt[idx]) < self.samples) and (time.time()-t < self.timeout):
-            pred = self.__predict()         
-            dist = self.__get_dist(pred)
+            pred = self._predict()         
+            dist = self._get_dist(pred)
             self.storer.collect_depth_data(idx, dist, self.mode_3D, minfreq)
             tgt = self.storer.depth_t
             time.sleep(1/maxfreq)
@@ -119,7 +119,7 @@ class HMDCalibrator(QObject):
         print("number of samples collected: {}".format(
             len(self.storer.dist[idx])))
 
-    def __get_dist(self, pred):
+    def _get_dist(self, pred):
         le_data, re_data = np.array(pred[:2]), np.array(pred[3:5])
         vec = re_data - le_data
         dist = np.sqrt(vec[0]**2 + vec[1]**2)
@@ -153,7 +153,7 @@ class HMDCalibrator(QObject):
     @Slot()
     def start_depth_calibration(self):
         print('starting depth calibration')
-        self.depth_list  = self.__generate_depth_list(5)
+        self.depth_list  = self._generate_depth_list(5)
         self.storer.set_target_list(self.depth_list)
         self.storer.initialize_depth_storage(len(self.depth_list))
         self.current_target = -1
@@ -188,14 +188,14 @@ class HMDCalibrator(QObject):
     def collect_data(self, minfq, maxfq):
         msg = 'R'.encode()
         self.socket.sendto(msg, (self.ip, self.port))
-        self.collector = Thread(target=self.__get_target_data, args=(minfq,maxfq,))
+        self.collector = Thread(target=self._get_target_data, args=(minfq,maxfq,))
         self.collector.start()
 
     @Slot(int, int)
     def collect_depth_data(self, minfq, maxfq):
         msg = 'R'.encode()
         self.socket.sendto(msg, (self.ip, self.port))
-        self.collector = Thread(target=self.__get_depth_data, args=(minfq,maxfq,))
+        self.collector = Thread(target=self._get_depth_data, args=(minfq,maxfq,))
         self.collector.start()
 
     @Slot()
@@ -204,8 +204,8 @@ class HMDCalibrator(QObject):
         Finds a gaze estimation function to be used for 
         future predictions. Based on Gaussian Processes regression.
         '''
-        clf_l = self.__get_clf()
-        clf_r = self.__get_clf()        
+        clf_l = self._get_clf()
+        clf_r = self._get_clf()        
         targets = self.storer.get_targets_list()                         
         if self.leye.is_cam_active():           
             l_centers = self.storer.get_l_centers_list(self.mode_3D)     
@@ -221,7 +221,7 @@ class HMDCalibrator(QObject):
 
     @Slot()
     def perform_depth_estimation(self):
-        clf_z = self.__get_clf()
+        clf_z = self._get_clf()
         targets = self.storer.get_depth_t_list()
         dist = self.storer.get_dist_list()
         clf_z.fit(dist, targets)
@@ -242,10 +242,10 @@ class HMDCalibrator(QObject):
             try:
                 demand = self.socket.recv(1024).decode()
                 if demand.startswith('G'):
-                    data = self.__predict()
+                    data = self._predict()
                     x1, y1, z1 = data[0], data[1], data[2]
                     x2, y2, z2 = data[3], data[4], data[5]
-                    z = self.__get_depth_val(z1)
+                    z = self._get_depth_val(z1)
                     d = 1.0/z
                     x1, y1, z1 = '{:.8f}'.format(x1/d), '{:.8f}'.format(y1/d), '{:.8f}'.format(z)
                     x2, y2, z2 = '{:.8f}'.format(x2/d), '{:.8f}'.format(y2/d), '{:.8f}'.format(z)
@@ -258,7 +258,7 @@ class HMDCalibrator(QObject):
                     break
         
 
-    def __predict(self):
+    def _predict(self):
         data = [-9,-9,-9,-9]
         pred = [-9,-9,-9,-9,-9,-9]
         if self.l_regressor is not None:
@@ -276,7 +276,7 @@ class HMDCalibrator(QObject):
                 data[2], data[3] = input_data[0]
                 pred[3], pred[4], pred[5] = float(re_c[0]), float(re_c[1]), float(re_c[2])
             if self.z_regressor is not None and self.l_regressor is not None:
-                dist = self.__get_dist(pred)
+                dist = self._get_dist(pred)
                 input_data = np.array([dist]).reshape(1,-1)
                 z = self.z_regressor.predict(input_data)[0]
                 pred[2], pred[5] = float(z[0]), float(z[0])
@@ -286,7 +286,7 @@ class HMDCalibrator(QObject):
             self.storer.append_session_data(l_gz, r_gz, l_raw, r_raw)
         return pred
 
-    def __get_depth_val(self, curr):
+    def _get_depth_val(self, curr):
         self.depth_buffer.append(curr)
         if len(self.depth_buffer) < 30:
             return 1.0
@@ -296,7 +296,7 @@ class HMDCalibrator(QObject):
 
 
 
-    def __get_clf(self):
+    def _get_clf(self):
         kernel = 1.5*kernels.RBF(length_scale=1.0, length_scale_bounds=(0.0,1.0))
         clf = GaussianProcessRegressor(alpha=1e-5,
                                        optimizer=None,

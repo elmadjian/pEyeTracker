@@ -27,8 +27,8 @@ class Camera(QQuickImageProvider, QObject):
     def __init__(self, name=None):
         QQuickImageProvider.__init__(self, QQuickImageProvider.Pixmap)
         QObject.__init__(self)
-        self.__image = self.to_QPixmap(cv2.imread("../ui/test.jpg"))
-        self.__np_img = None
+        self._image = self.to_QPixmap(cv2.imread("../ui/test.jpg"))
+        self._np_img = None
         self.name = name
         self.capturing = Value('i', 0)
         self.dev_list = uvc.device_list()
@@ -53,17 +53,17 @@ class Camera(QQuickImageProvider, QObject):
         while self.capturing.value:
             time.sleep(0.005)
             try:
-                img = self.__get_shared_np_array()
+                img = self._get_shared_np_array()
                 img = self.process(img)
-                self.__np_img = img
+                self._np_img = img
                 qimage = self.to_QPixmap(img)
                 if qimage is not None:
-                    self.__image = qimage
+                    self._image = qimage
                     self.update_image.emit()
             except Exception as e:
                 print(">>> Exception:", e)
 
-    def __get_shared_np_array(self):
+    def _get_shared_np_array(self):
         nparray = np.frombuffer(self.shared_array, dtype=ctypes.c_uint8)
         w, h = self.mode[0], self.mode[1]
         return nparray.reshape((h,w,3))
@@ -74,13 +74,13 @@ class Camera(QQuickImageProvider, QObject):
         return Array(ctypes.c_uint8, h*w*3, lock=False)
 
     def requestImage(self, id, size, requestedSize):
-        return self.__image
+        return self._image
 
     def requestPixmap(self, id, size, requestImage):
-        return self.__image
+        return self._image
 
     def get_np_image(self):
-        return self.__np_img
+        return self._np_img
 
     def get_processed_data(self):
         nparray = np.frombuffer(self.shared_pos, dtype=ctypes.c_float)
@@ -148,7 +148,7 @@ class Camera(QQuickImageProvider, QObject):
         print('setting camera source to', source)
         self.source = source
         self.load_state()
-        self.__set_fps_modes()
+        self._set_fps_modes()
         self.shared_array = self.create_shared_array(self.mode)
         self.capturing.value = 1
         self.init_process(source, self.child, self.shared_array, 
@@ -171,7 +171,7 @@ class Camera(QQuickImageProvider, QObject):
         if ret:
             qimage = self.to_QPixmap(frame)
             if qimage is not None:
-                self.__image = qimage
+                self._image = qimage
                 self.update_image.emit()
         cap.release()
 
@@ -182,7 +182,7 @@ class Camera(QQuickImageProvider, QObject):
         self.cam_thread = Thread(target=self.thread_loop, args=())
         self.cam_thread.start()
 
-    def __set_fps_modes(self):
+    def _set_fps_modes(self):
         self.fps_res, self.modes = {}, {}
         dev_list = uvc.device_list()
         cap = uvc.Capture(dev_list[self.source]['uid'])
@@ -231,7 +231,7 @@ class Camera(QQuickImageProvider, QObject):
         self.stop()
         res  = resolution.split('x')
         self.mode = (int(res[0]), int(res[1]), int(fps))
-        self.__set_fps_modes()
+        self._set_fps_modes()
         print("setting mode:", self.mode)
         if resolution not in self.fps_res[int(fps)]:
             print("setting mode:", self.modes[int(fps)][0])

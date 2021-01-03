@@ -15,7 +15,7 @@ class EyeImageProcessor(imp.ImageProcessor):
     def __init__(self, source, mode, pipe, array, cap):
         super().__init__(source, mode, pipe, array, cap)
 
-    def __setup_eye_cam(self, cap):
+    def _setup_eye_cam(self, cap):
         if self.eye_cam:
             try:
                 controls_dict = dict([(c.display_name, c) for c in cap.controls])
@@ -48,7 +48,7 @@ class EyeImageProcessor(imp.ImageProcessor):
         self.capturing.value = 1
         dev_list = uvc.device_list()
         cap = uvc.Capture(dev_list[self.source]['uid'])
-        self.__setup_eye_cam(cap)
+        self._setup_eye_cam(cap)
         cap.frame_mode = self.mode
         attempt, attempts, loop = 0, 5, True
         gamma, color, mode_3D, flip = 1, True, False, False

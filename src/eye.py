@@ -100,7 +100,7 @@ class EyeCamera(camera.Camera):
             else:
                 c = np.array(result['ellipse']['center'])
                 self.pos = np.array([c[0]/width, c[1]/height, time.monotonic()])
-            self.__draw_tracking_info(result, img)
+            self._draw_tracking_info(result, img)
             self.countdown = 5
         else:
             self.countdown -= 1
@@ -108,21 +108,21 @@ class EyeCamera(camera.Camera):
                 self.pos = None
         return img
  
-    def __draw_tracking_info(self, result, img, color=(255,120,120)):
+    def _draw_tracking_info(self, result, img, color=(255,120,120)):
         ellipse = result["ellipse"]
         center = tuple(int(v) for v in ellipse["center"])
         cv2.drawMarker(img, center, (0,255,0), cv2.MARKER_CROSS, 12, 1)
-        self.__draw_ellipse(ellipse, img, (0,0,255))
+        self._draw_ellipse(ellipse, img, (0,0,255))
         if self.mode_3D:
             sphere = result["projected_sphere"]
             normal = result["circle_3d"]["normal"]
             dest_pos = (int(center[0]+normal[0]*60), int(center[1]+normal[1]*60))
             cv2.line(img, center, dest_pos, (85,175,20),2)
             if result['model_confidence'] > 0.6:
-                self.__draw_ellipse(sphere, img, (255, 204, 51), 1)
+                self._draw_ellipse(sphere, img, (255, 204, 51), 1)
 
 
-    def __draw_ellipse(self, ellipse, img, color, thickness=2):
+    def _draw_ellipse(self, ellipse, img, color, thickness=2):
         center = tuple(int(v) for v in ellipse["center"])
         axes = tuple(int(v/2) for v in ellipse["axes"])
         rad = ellipse["angle"]
