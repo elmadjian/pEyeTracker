@@ -2,7 +2,7 @@
 
 pEyeTracker is an experimental and cross-platform eye-tracking software written in Python 3. It was designed to primarily work with the [Core cameras](https://pupil-labs.com/products/core/) from Pupil Labs, but it should work with any **head-mounted setup** with UVC-compliant cameras.
 
-<img src="screenshot1.png" width=40% /><img src="screenshot2.png" width=40% />
+<img src="screenshot1.png" width=45% /> <img src="screenshot2.png" width=45% />
 
 
 ### Features
