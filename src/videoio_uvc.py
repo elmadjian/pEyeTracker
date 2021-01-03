@@ -5,6 +5,15 @@ from PySide2.QtCore import QObject, Signal, Slot, Property
 
 class VideoIO_UVC(QObject):
 
+    '''
+    This class manages camera I/O.
+    It is also the main I/O interface used by the UI, which
+    means that it allows:
+    - to switch one camera spot to ther other in the UI
+    - start / stop a stream through the UI
+    - toggle the 3D model 
+    - load videos instead of opening cam streams
+    '''
 
     def __init__(self):
         QObject.__init__(self)

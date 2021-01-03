@@ -55,7 +55,7 @@ python3 main.py
 
 ### Collaboration
 
-As stated before, pEyeTracker is at an experimental stage. Unfortunately, I can only work on it at my spare time, so any help with debugging, adding new useful features, or re-writting a problematic module would be greatly appreciated. 
+As stated before, pEyeTracker is at an early experimental stage. Unfortunately, I can only work on it at my spare time, so any help with debugging, adding new useful features, or re-writting a problematic module would be greatly appreciated. 
 
 If you feel like collaborating, just get in touch or make a pull request with your changes. I will gladly look at it as soon as I can.
 

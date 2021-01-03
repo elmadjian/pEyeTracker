@@ -11,6 +11,14 @@ from threading import Thread
 
 class Calibrator(QObject):
 
+    '''
+    An instance of Calibrator is responsible for:
+    - collecting gaze data for calibration (either 2D or 3D)
+    - performing user calibration
+    - performing gaze estimation through regression
+    - providing onscreen gaze predictions
+    '''
+
     move_on = Signal()
     enable_estimation = Signal()
     draw_estimation = Signal('QVariantList', 'QVariantList', 'QVariantList',

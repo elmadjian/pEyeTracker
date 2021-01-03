@@ -7,6 +7,11 @@ import ctypes
 
 class SceneImageProcessor(imp.ImageProcessor):
 
+    '''
+    It runs specialized image processing tasks for the scene camera
+    as a separate process
+    '''
+
     def __init__(self, source, mode, pipe, array, cap, pos):
         super().__init__(source, mode, pipe, array, cap, pos)
 

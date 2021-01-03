@@ -7,6 +7,11 @@ import uvc
 
 class EyeImageProcessor(imp.ImageProcessor):
 
+    '''
+    It runs specialized image processing tasks for eye cameras
+    as a separate process
+    '''
+
     def __init__(self, source, mode, pipe, array, cap):
         super().__init__(source, mode, pipe, array, cap)
 

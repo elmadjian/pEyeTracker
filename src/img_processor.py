@@ -10,6 +10,12 @@ import ctypes
 
 class ImageProcessor(Process):
 
+    '''
+    It provides generic image processing functionality for
+    specialized image processing classes, such as gamma
+    adjusment, B&W convertion, etc.
+    '''
+
     def __init__(self, source, mode, pipe, array, cap, pos=None):
         Process.__init__(self)
         self.eye_cam = False

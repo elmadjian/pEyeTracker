@@ -14,6 +14,14 @@ import os
 
 class Camera(QQuickImageProvider, QObject):
 
+    '''
+    This is the base class for all cameras or video used in pEyeTracker.
+    It is mainly responsible for:
+    - gathering and managing cam / video specs
+    - starting / stop a streaming
+    - providing feedback of gaze data processing to the UI
+    '''
+
     update_image = Signal()
 
     def __init__(self, name=None):

@@ -11,6 +11,14 @@ import uvc
 
 class SceneCamera(camera.Camera):
 
+    '''
+    This is the specialized scene camera extention of the Camera class.
+    It is responsible for:
+    - starting / stoping scene image processing independent tasks
+    - tracking ARUCO markers on screen
+    - providing marker position information to other objects
+    '''
+
     def __init__(self, name=None, mode=(640,480,30)):
         super().__init__(name)
         self.mode = mode

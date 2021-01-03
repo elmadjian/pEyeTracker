@@ -15,6 +15,15 @@ from pupil_detectors import Detector3D, Detector2D
 
 class EyeCamera(camera.Camera):
 
+    '''
+    This is the specialized eye camera extension of the Camera class.
+    It is responsible for:
+    - starting / stoping processes for image processing tasks
+    - detecting the pupil center
+    - creating a 3D eye model
+    - providing eye tracking information to other objects
+    '''
+
     def __init__(self, name=None, mode=(640,480,30)):
         super().__init__(name)
         self.mode = mode
@@ -72,14 +81,7 @@ class EyeCamera(camera.Camera):
             self.mode = mode
         return mode
 
-        '''
-        {'ellipse': {'center': (134.35316467285156, 149.26513671875), 
-                    'axes': (51.67513656616211, 61.95164489746094), 
-                    'angle': 151.75175476074222}, 
-                    'diameter': 61.95164489746094, 
-                    'location': (134.35316467285156, 149.26513671875), 
-                    'confidence': 0.6857050061225891
-        '''
+
     def process(self, img):
         if img is None:
             return
