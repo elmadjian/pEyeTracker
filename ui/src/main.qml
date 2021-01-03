@@ -595,7 +595,7 @@ Window {
                 source: "../imgs/estimation.png"
                 Layout.preferredHeight: 50
                 sourceSize.height: 50
-                enabled: false// <-- turned on for DEBUG!
+                enabled: false
 
                 signal enableEstimation();
 
@@ -605,6 +605,7 @@ Window {
 
                 onEnableEstimation: {
                     estimation.enabled = true;
+                    estimationDisabledOverlay.opacity = 0;
                 }
 
                 ColorOverlay {
